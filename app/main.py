@@ -19,12 +19,12 @@ def decode_bencode(bencoded_value):
         end_index = bencoded_value.find(b"e")
         return int(bencoded_value[1:end_index]), end_index + 1
     elif chr(bencoded_value[0]) == "l" and chr(bencoded_value[-1]) == "e":
-        bencoded_value = bencoded_value[1:-1]
+        temp = bencoded_value[1:-1]
         result = []
-        while bencoded_value:
-            value, len = decode_bencode(bencoded_value)
+        while temp:
+            value, len = decode_bencode(temp)
             result.append(value)
-            bencoded_value = bencoded_value[len:]    
+            temp = temp[len:]    
         return result
     else:
         raise NotImplementedError("Only strings, integers and lists are supported at the moment")
