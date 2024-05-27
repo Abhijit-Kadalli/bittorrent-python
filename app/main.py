@@ -23,7 +23,6 @@ def decode_bencode(bencoded_value):
         while bencoded_value:
             value = decode_bencode(bencoded_value)
             result.append(value)
-            print(value)
             bencoded_value = bencoded_value[len(str(value)):]
         
         return result
