@@ -10,22 +10,25 @@ import sys
 # - decode_bencode(b"10:hello12345") -> b"hello12345"
 def decode_bencode(bencoded_value):
     if chr(bencoded_value[0]).isdigit():
+        length = int(bencoded_value[:bencoded_value.index(b":")])
         first_colon_index = bencoded_value.find(b":")
         if first_colon_index == -1:
             raise ValueError("Invalid encoded value")
-        return bencoded_value[first_colon_index+1:]
-    elif chr(bencoded_value[0]) == "i" and chr(bencoded_value[-1]) == "e":
-        return int(bencoded_value[1:-1])
+        return bencoded_value[first_colon_index+1:length+first_colon_index+1], length+first_colon_index+1
+    elif chr(bencoded_value[0]) == "i" and "e" in bencoded_value:
+        end_index = bencoded_value.index("e")
+        return int(bencoded_value[1:end_index]), end_index + 1
     elif chr(bencoded_value[0]) == "l" and chr(bencoded_value[-1]) == "e":
         bencoded_value = bencoded_value[1:-1]
-
         result = []
         while bencoded_value:
-            value = decode_bencode(bencoded_value)
+            value, len = decode_bencode(bencoded_value)
             result.append(value)
-            bencoded_value = bencoded_value[len(str(value)):]
-        
+            print(value)
+            bencoded_value = bencoded_value[len:]    
         return result
+    else:
+        raise NotImplementedError("Only strings, integers and lists are supported at the moment")
         
 
 
