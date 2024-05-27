@@ -12,7 +12,7 @@ def decode_bencode(bencoded_value):
 def info_torrent(location):
     with open(location, 'rb') as f:
         data = f.read()
-    decoded = bc.decode(data)
+    decoded = decode_bencode(data)
     tracker_url = decoded[b'announce']
     size_file = decoded[b'info'][b'length']
     return tracker_url, size_file
