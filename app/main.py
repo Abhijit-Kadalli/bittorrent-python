@@ -17,13 +17,13 @@ def decode_bencode(bencoded_value):
     elif chr(bencoded_value[0]) == "i" and chr(bencoded_value[-1]) == "e":
         return int(bencoded_value[1:-1])
     elif chr(bencoded_value[0]) == "l" and chr(bencoded_value[-1]) == "e":
-        # remove the first and last character
         bencoded_value = bencoded_value[1:-1]
 
         result = []
         while bencoded_value:
             value = decode_bencode(bencoded_value)
             result.append(value)
+            print(value)
             bencoded_value = bencoded_value[len(str(value)):]
         
         return result
