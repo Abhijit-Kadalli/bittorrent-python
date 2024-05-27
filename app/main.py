@@ -15,7 +15,7 @@ def decode_bencode(bencoded_value):
         if first_colon_index == -1:
             raise ValueError("Invalid encoded value")
         return bencoded_value[first_colon_index+1:length+first_colon_index+1], length+first_colon_index+1
-    elif chr(bencoded_value[0]) == "i" and "e" in bencoded_value:
+    elif chr(bencoded_value[0]) == "i" and "e" in str(bencoded_value):
         end_index = bencoded_value.index("e")
         return int(bencoded_value[1:end_index]), end_index + 1
     elif chr(bencoded_value[0]) == "l" and chr(bencoded_value[-1]) == "e":
@@ -24,7 +24,6 @@ def decode_bencode(bencoded_value):
         while bencoded_value:
             value, len = decode_bencode(bencoded_value)
             result.append(value)
-            print(value)
             bencoded_value = bencoded_value[len:]    
         return result
     else:
