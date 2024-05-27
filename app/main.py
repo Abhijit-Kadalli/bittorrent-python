@@ -13,8 +13,8 @@ def info_torrent(location):
     with open(location, 'rb') as f:
         data = f.read()
     decoded = decode_bencode(data)
-    tracker_url = decoded[b'announce']
-    size_file = decoded[b'info'][b'length']
+    tracker_url = decoded.get(b'announce', "").decode()
+    size_file = decoded.get(b'info', {}).get(b'length', 0)
     return tracker_url, size_file
         
 def main():
@@ -38,7 +38,7 @@ def main():
         location = sys.argv[2]
 
         tracker_url, size_file = info_torrent(location)
-        print(f"Tracker URL: {tracker_url.decode()}")
+        print(f"Tracker URL: {tracker_url}")
         print(f"Size of file: {size_file}")
 
     else:
