@@ -24,7 +24,10 @@ def decode_bencode(bencoded_value):
         while temp:
             value, len = decode_bencode(temp)
             result.append(value)
-            temp = temp[len:]    
+            try:
+                temp = temp[len:]
+            except:
+                break 
         return result
     else:
         raise NotImplementedError("Only strings, integers and lists are supported at the moment")
