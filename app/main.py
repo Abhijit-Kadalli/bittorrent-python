@@ -8,14 +8,6 @@ bc = bencodepy.Bencode(encoding='utf-8')
 
 def decode_bencode(bencoded_value):
     return bc.decode(bencoded_value)
-
-def info_torrent(location):
-    with open(location, 'rb') as f:
-        data = f.read()
-    decoded,_ = decode_bencode(data)
-    tracker_url = decoded.get(b'announce', "").decode()
-    size_file = decoded.get(b'info', {}).get(b'length', 0)
-    return tracker_url, size_file
         
 def main():
     command = sys.argv[1]
@@ -35,12 +27,13 @@ def main():
 
         print(json.dumps(decode_bencode(bencoded_value), default=bytes_to_str))
     elif command == "info":
-        location = sys.argv[2]
-
-        tracker_url, size_file = info_torrent(location)
+        with open(sys.argv[2], "rb") as f:
+            bencoded_value = f.read()
+        torrent_info, _ = decode_bencode(bencoded_value)
+        tracker_url = torrent_info.get("announce", "").decode()
+        file_length = torrent_info.get("info", {}).get("length", 0)
         print(f"Tracker URL: {tracker_url}")
-        print(f"Size of file: {size_file}")
-
+        print(f"Length: {file_length}")
     else:
         raise NotImplementedError(f"Unknown command {command}")
 
