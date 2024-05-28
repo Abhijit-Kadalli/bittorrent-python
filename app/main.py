@@ -1,6 +1,7 @@
 import json
 import sys
 import bencodepy
+import os
 
 
 bc = bencodepy.Bencode(encoding='utf-8')
@@ -8,6 +9,14 @@ bc = bencodepy.Bencode(encoding='utf-8')
 
 def decode_bencode(bencoded_value):
     return bc.decode(bencoded_value)
+
+def get_info(metainfo_file):
+    bc = bencodepy.Bencode(encoding="utf-8")
+    with open(metainfo_file, "rb") as f:
+        metadata = bencodepy.decode(f.read())
+    tracker_url = metadata.get(b"announce").decode("utf-8")
+    length = metadata.get(b"info", {}).get(b"length")
+    return (tracker_url, length)
         
 def main():
     command = sys.argv[1]
@@ -27,13 +36,14 @@ def main():
 
         print(json.dumps(decode_bencode(bencoded_value), default=bytes_to_str))
     elif command == "info":
-        with open(sys.argv[2], "rb") as f:
-            bencoded_value = f.read()
-        torrent_info, _ = decode_bencode(bencoded_value)
-        tracker_url = torrent_info.get("announce", "").decode()
-        file_length = torrent_info.get("info", {}).get("length", 0)
-        print(f"Tracker URL: {tracker_url}")
-        print(f"Length: {file_length}")
+        metainfo_file = sys.argv[2]
+        try:
+            os.path.exists(metainfo_file)
+            metainfo_file = os.path.abspath(metainfo_file)
+        except:
+            raise NotImplementedError("File not found")
+        tracker_url, length = get_info(metainfo_file)
+        print("Tracker URL:", tracker_url, "\nLength:", length)
     else:
         raise NotImplementedError(f"Unknown command {command}")
 
