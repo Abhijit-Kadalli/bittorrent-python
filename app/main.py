@@ -2,7 +2,7 @@ import json
 import sys
 import bencodepy
 import os
-
+import hashlib
 
 bc = bencodepy.Bencode(encoding='utf-8')
 
@@ -11,12 +11,12 @@ def decode_bencode(bencoded_value):
     return bc.decode(bencoded_value)
 
 def get_info(metainfo_file):
-    bc = bencodepy.Bencode(encoding="utf-8")
     with open(metainfo_file, "rb") as f:
         metadata = bencodepy.decode(f.read())
     tracker_url = metadata.get(b"announce").decode("utf-8")
+    info_hash = hashlib.sha1(bencodepy.encode(metadata[b"info"])).hexdigest()
     length = metadata.get(b"info", {}).get(b"length")
-    return (tracker_url, length)
+    return (tracker_url, length, info_hash)
         
 def main():
     command = sys.argv[1]
@@ -42,8 +42,8 @@ def main():
             metainfo_file = os.path.abspath(metainfo_file)
         except:
             raise NotImplementedError("File not found")
-        tracker_url, length = get_info(metainfo_file)
-        print("Tracker URL:", tracker_url, "\nLength:", length)
+        tracker_url, length, info_hash = get_info(metainfo_file)
+        print("Tracker URL:", tracker_url, "\nLength:", length, "\nInfo Hash:", info_hash)
     else:
         raise NotImplementedError(f"Unknown command {command}")
 
