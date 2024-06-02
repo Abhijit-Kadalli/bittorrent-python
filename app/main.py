@@ -70,7 +70,7 @@ def main():
         for i in range(0, len(peers), 6):
             ip = ".".join(str(peers[i+j]) for j in range(4))
             port = int.from_bytes(peers[i+4:i+6], "big")
-            print(ip + ':' + port)
+            print(f'{ip}:{port}')
 
 
 
