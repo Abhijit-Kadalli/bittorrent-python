@@ -15,8 +15,13 @@ def get_info(metainfo_file):
         metadata = bencodepy.decode(f.read())
     tracker_url = metadata.get(b"announce").decode("utf-8")
     info_hash = hashlib.sha1(bencodepy.encode(metadata[b"info"])).hexdigest()
+    piece_length = metadata.get(b"info", {}).get(b"piece length")
+    for i in range(0, len(metadata.get(b"info", {}).get(b"pieces")), 20):
+        piece_hash = metadata.get(b"info", {}).get(b"pieces")[i:i+20]
+        if len(piece_hash) != 20:
+            raise NotImplementedError("Invalid piece hash")
     length = metadata.get(b"info", {}).get(b"length")
-    return (tracker_url, length, info_hash)
+    return (tracker_url, length, info_hash, piece_length, piece_hash)
         
 def main():
     command = sys.argv[1]
@@ -42,8 +47,8 @@ def main():
             metainfo_file = os.path.abspath(metainfo_file)
         except:
             raise NotImplementedError("File not found")
-        tracker_url, length, info_hash = get_info(metainfo_file)
-        print("Tracker URL:", tracker_url, "\nLength:", length, "\nInfo Hash:", info_hash)
+        tracker_url, length, info_hash, piece_length, piece_hash = get_info(metainfo_file)
+        print("Tracker URL:", tracker_url, "\nLength:", length, "\nInfo Hash:", info_hash, "\nPiece Length:", piece_length, "\nPiece Hash:", piece_hash)
     else:
         raise NotImplementedError(f"Unknown command {command}")
 
