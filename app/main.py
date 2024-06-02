@@ -18,8 +18,6 @@ def get_info(metainfo_file):
     piece_length = metadata.get(b"info", {}).get(b"piece length")
     for i in range(0, len(metadata.get(b"info", {}).get(b"pieces")), 20):
         piece_hash = metadata.get(b"info", {}).get(b"pieces")[i:i+20].hex()
-        if len(piece_hash) != 20:
-            raise NotImplementedError("Invalid piece hash")
     length = metadata.get(b"info", {}).get(b"length")
     return (tracker_url, length, info_hash, piece_length, piece_hash)
         
