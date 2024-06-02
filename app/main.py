@@ -63,10 +63,8 @@ def main():
             "left": length,
             "compact": "1",
         }
-        response = requests.get(tracker_url, params=query)
-
-        response_dict = bc.decode(response.content)
-        peers = response_dict.get(b"peers", b"")
+        response = decode_bencode(requests.get(tracker_url, query).content)
+        peers = response["peers"]
         for i in range(0, len(peers), 6):
             ip = ".".join(str(peers[i+j]) for j in range(4))
             port = int.from_bytes(peers[i+4:i+6], "big")
