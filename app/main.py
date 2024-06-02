@@ -16,8 +16,7 @@ def get_info(metainfo_file):
     tracker_url = metadata.get(b"announce").decode("utf-8")
     info_hash = hashlib.sha1(bencodepy.encode(metadata[b"info"])).hexdigest()
     piece_length = metadata.get(b"info", {}).get(b"piece length")
-    num_pieces = len(metadata.get(b"info", {}).get(b"pieces")) // 20
-    for i in range(0, num_pieces * 20, 20):
+    for i in range(0, len(metadata.get(b"info", {}).get(b"pieces")), 20):
         piece_hash = metadata[b'info'][b'pieces'][i:i+20].hex()
     length = metadata.get(b"info", {}).get(b"length")
     return (tracker_url, length, info_hash, piece_length, piece_hash)
