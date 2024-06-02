@@ -67,12 +67,14 @@ def main():
             port = int.from_bytes(peers[i+4:i+6], "big")
             print(f'{ip}:{port}')
     elif command == "handshake":
+        (ip, port) = sys.argv[3].split(":")
         tracker_url, length, info_hash, piece_length, piece_hash = get_info()
-        s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        s.connect((tracker_url, 6881))
+        
         handshake = b'\x13BitTorrent protocol\x00\x00\x00\x00\x00\x00\x00\x00' + info_hash.digest() + b'69420694206942069420'
-        s.send(handshake)
-        print(f'Peer ID: {s.recv(1024).hex()}')
+        with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+            s.connect((ip, int(port)))
+            s.send(handshake)
+            print(f"Peer ID: {s.recv(68)[48:].hex()}")
 
     else:
         raise NotImplementedError(f"Unknown command {command}")
