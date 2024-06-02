@@ -9,7 +9,9 @@ bc = bencodepy.Bencode(encoding='utf-8')
 
 
 def decode_bencode(bencoded_value):
-    return bc.decode(bencoded_value)
+    return bencodepy.Bencode(encoding="utf-8", encoding_fallback="all").decode(
+        bencoded_value
+    )
 
 def get_info(metainfo_file):
     with open(metainfo_file, "rb") as f:
