@@ -3,6 +3,7 @@ import sys
 import bencodepy
 import os
 import hashlib
+import requests
 
 bc = bencodepy.Bencode(encoding='utf-8')
 
@@ -21,6 +22,23 @@ def get_info(metainfo_file):
         piece_hash += metadata[b'info'][b'pieces'][i:i+20].hex()
     length = metadata.get(b"info", {}).get(b"length")
     return (tracker_url, length, info_hash, piece_length, piece_hash)
+
+def get_peers(tracker_url, info_hash, length):
+    query = {
+            "info_hash": info_hash,
+            "peer_id": "69420694206942069420",
+            "port": "6881",
+            "uploaded": "0",
+            "downloaded": "0",
+            "left": length,
+            "compact": "1",
+        }
+    response = requests.get(tracker_url, params=query)
+
+    response_dict = bc.decode(response.content)
+    peers = response_dict.get(b"peers", b"")
+    return peers
+
         
 def main():
     command = sys.argv[1]
@@ -48,6 +66,24 @@ def main():
             raise NotImplementedError("File not found")
         tracker_url, length, info_hash, piece_length, piece_hash = get_info(metainfo_file)
         print("Tracker URL:", tracker_url, "\nLength:", length, "\nInfo Hash:", info_hash, "\nPiece Length:", piece_length, "\nPiece Hash:", piece_hash)
+
+    elif command == "peers":
+        metainfo_file = sys.argv[2]
+        try:
+            os.path.exists(metainfo_file)
+            metainfo_file = os.path.abspath(metainfo_file)
+        except:
+            raise NotImplementedError("File not found")
+        tracker_url, length, info_hash, piece_length, piece_hash = get_info(metainfo_file)
+
+        peers = get_peers(tracker_url, info_hash, length)
+        for i in range(0, len(peers), 6):
+            ip = ".".join(str(peers[i+j]) for j in range(4))
+            port = int.from_bytes(peers[i+4:i+6], "big")
+            print(ip + ':' + port)
+
+
+
     else:
         raise NotImplementedError(f"Unknown command {command}")
 
