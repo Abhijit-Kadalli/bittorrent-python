@@ -4,6 +4,7 @@ import bencodepy
 import os
 import hashlib
 import requests
+import socket
 
 bc = bencodepy.Bencode(encoding='utf-8')
 
@@ -13,7 +14,13 @@ def decode_bencode(bencoded_value):
         bencoded_value
     )
 
-def get_info(metainfo_file):
+def get_info():
+    metainfo_file = sys.argv[2]
+    try:
+        os.path.exists(metainfo_file)
+        metainfo_file = os.path.abspath(metainfo_file)
+    except:
+        raise NotImplementedError("File not found")
     with open(metainfo_file, "rb") as f:
         metadata = bencodepy.decode(f.read())
     tracker_url = metadata.get(b"announce").decode("utf-8")
@@ -38,23 +45,11 @@ def main():
 
         print(json.dumps(decode_bencode(bencoded_value), default=bytes_to_str))
     elif command == "info":
-        metainfo_file = sys.argv[2]
-        try:
-            os.path.exists(metainfo_file)
-            metainfo_file = os.path.abspath(metainfo_file)
-        except:
-            raise NotImplementedError("File not found")
-        tracker_url, length, info_hash, piece_length, piece_hash = get_info(metainfo_file)
+        tracker_url, length, info_hash, piece_length, piece_hash = get_info()
         print("Tracker URL:", tracker_url, "\nLength:", length, "\nInfo Hash:", info_hash.hexdigest(), "\nPiece Length:", piece_length, "\nPiece Hash:", piece_hash)
 
     elif command == "peers":
-        metainfo_file = sys.argv[2]
-        try:
-            os.path.exists(metainfo_file)
-            metainfo_file = os.path.abspath(metainfo_file)
-        except:
-            raise NotImplementedError("File not found")
-        tracker_url, length, info_hash, piece_length, piece_hash = get_info(metainfo_file)
+        tracker_url, length, info_hash, piece_length, piece_hash = get_info()
 
         query = {
             "info_hash": info_hash.digest(),
@@ -71,8 +66,13 @@ def main():
             ip = ".".join(str(peers[i+j]) for j in range(4))
             port = int.from_bytes(peers[i+4:i+6], "big")
             print(f'{ip}:{port}')
-
-
+    elif command == "handshake":
+        tracker_url, length, info_hash, piece_length, piece_hash = get_info()
+        s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        s.connect((tracker_url, 6881))
+        handshake = b'\x13BitTorrent protocol\x00\x00\x00\x00\x00\x00\x00\x00' + info_hash.digest() + b'69420694206942069420'
+        s.send(handshake)
+        print(f'Peer ID: {s.recv(1024).hex()}')
 
     else:
         raise NotImplementedError(f"Unknown command {command}")
