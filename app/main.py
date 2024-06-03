@@ -138,11 +138,6 @@ def download_piece(output_file):
         with open(output_file, "wb") as f:
             f.write(piece)
 
-        
-    
-
-    pass
-
 
 def main():
     command = sys.argv[1]
