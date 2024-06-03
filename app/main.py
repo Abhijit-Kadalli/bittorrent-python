@@ -15,8 +15,7 @@ def decode_bencode(bencoded_value):
         bencoded_value
     )
 
-def get_info():
-    
+def get_info(metainfo_file):
     try:
         os.path.exists(metainfo_file)
         metainfo_file = os.path.abspath(metainfo_file)
