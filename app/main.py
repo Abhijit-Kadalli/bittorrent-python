@@ -85,7 +85,6 @@ def download_piece(output_file):
         s.connect((peer_ip, int(peer_port)))
         handshake = b'\x13BitTorrent protocol\x00\x00\x00\x00\x00\x00\x00\x00' + info_hash.digest() + b'PC0001-7694471987235'
         s.sendall(handshake)
-        response_handshake = s.recv(len(handshake))
         length, msg_type = s.recv(4), s.recv(1)
         if msg_type != b'\x05':
             raise RuntimeError("Handshake failed")
