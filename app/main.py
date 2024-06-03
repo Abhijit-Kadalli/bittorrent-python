@@ -76,7 +76,7 @@ def download_piece(output_file):
         torrent_data = f.read()
 
     decoded_torrent = decode_bencode(torrent_data)
-    _, _, info_hash = get_info(torrent_file)
+    _, _, info_hash,_,_ = get_info(torrent_file)
 
     peers = get_peers(torrent_file)
     peer_ip, peer_port = peers[0].split(":")
